@@ -1,0 +1,51 @@
+
+
+# CREATE NEW PROJECT
+petalinux-create project --template zynqMP -n sandbox && cd sandbox
+
+# SET CONFIG & BUILD
+petalinux-config --get-hw-description ../../hw/hw_bare.xsa 
+(remember to change mac to 02:11:22:33:44:55 and set the image to ext4 and not INITRD or INITRAMFS and set the BOOT ARGS TO MANUAL see below)
+
+FIX BOARD ISSUES!!!!
+
+petalinux-config
+DTG Settings ---> Kernel Bootargs:
+earlycon console=ttyPS0,115200 root=/dev/mmcblk1p2 rw rootwait
+
+THEN FIX MAC OR WHATEVER:
+echo -e '/include/ "system-conf.dtsi"\n/\n{\n\tchosen {\n\t\tbootargs = "earlycon console=ttyPS0,115200 root=/dev/mmcblk1p2 rw rootwait";\n\t\tstdout-path = "serial0:115200n8";\n\t};\n};\n\n&sdhci1 {\n\tdisable-wp;\n\tno-1-8-v;\n};\n\n&gem0 {\n\tlocal-mac-address = [02 11 22 33 44 55];\n};' > project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
+
+petalinux-build
+petalinux-package --boot --u-boot --fpga project-spec/hw-description/hw_bare.bit --force
+echo 'CONFIG_SUBSYSTEM_USER_CMDLINE="earlycon console=ttyPS0,115200 root=/dev/mmcblk1p2 rw rootwait"' >> project-spec/configs/config && petalinux-config --silentconfig
+echo -e '/include/ "system-conf.dtsi"\n/\n{\n\tchosen {\n\t\tbootargs = "earlycon console=ttyPS0,115200 root=/dev/mmcblk1p2 rw rootwait";\n\t\tstdout-path = "serial0:115200n8";\n\t};\n};\n\n&sdhci1 {\n\tdisable-wp;\n\tno-1-8-v;\n};\n\n&gem0 {\n\tlocal-mac-address = [02 11 22 33 44 55];\n};' > project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
+
+# PREPARING THE SD CARD:
+# 1. Create partition table and partitions via parted
+sudo parted --script /dev/sda mklabel msdos
+sudo parted --script /dev/sda mkpart primary fat32 4MiB 1024MiB
+sudo parted --script /dev/sda mkpart primary ext4 1024MiB 100%
+sudo parted --script /dev/sda set 1 boot on
+
+# 2. Format the partitions with correct labels
+sudo mkfs.vfat -F 32 -n BOOT /dev/sda1
+sudo mkfs.ext4 -F -L rootfs /dev/sda2
+
+# 3. Create mount points and mount partitions
+mkdir -p /tmp/mp_boot /tmp/mp_rootfs
+sudo mount /dev/sda1 /tmp/mp_boot
+sudo mount /dev/sda2 /tmp/mp_rootfs
+sudo parted --script /dev/sda set 1 boot on
+
+# 4. Copy boot files and extract rootfs (preserves file permissions)
+sudo cp images/linux/BOOT.BIN /tmp/mp_boot/
+sudo cp images/linux/image.ub /tmp/mp_boot/
+sudo cp images/linux/boot.scr /tmp/mp_boot/
+sudo tar -xzvf images/linux/rootfs.tar.gz -C /tmp/mp_rootfs/
+
+# 5. Flush write cache and safely unmount drives
+sync
+sudo umount /tmp/mp_boot
+sudo umount /tmp/mp_rootfs
+echo -e "\n=== DONE! Your SD card is ready for boot ==="
