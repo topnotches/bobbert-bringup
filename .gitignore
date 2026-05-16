@@ -1,0 +1,4 @@
+fpga_mnt/
+*.log
+*.bin
+*.old
