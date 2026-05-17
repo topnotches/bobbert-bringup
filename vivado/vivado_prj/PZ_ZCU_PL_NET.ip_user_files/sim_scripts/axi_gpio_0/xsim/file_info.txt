@@ -1,0 +1,2 @@
+axi_gpio_0.vhd,vhdl,xil_defaultlib,../../../../PZ_ZCU_PL_NET.gen/sources_1/ip/axi_gpio_0/sim/axi_gpio_0.vhd,incdir="../../../../../../../xilinx/2025.2.1/data/rsb/busdef"
+glbl.v,Verilog,xil_defaultlib,glbl.v

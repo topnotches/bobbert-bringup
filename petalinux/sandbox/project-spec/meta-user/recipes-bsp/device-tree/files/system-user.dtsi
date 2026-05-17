@@ -1,10 +1,70 @@
 /include/ "system-conf.dtsi"
-/
-{
+
+/ {
 	chosen {
-		bootargs = "earlycon console=ttyPS0,115200 root=/dev/mmcblk1p2 rw rootwait";
+		/* Tilføjet clk_ignore_unused i slutningen af strengen for en sikkerheds skyld */
+		bootargs = "earlycon console=ttyPS0,115200 root=/dev/mmcblk1p2 rw rootwait clk_ignore_unused";
 		stdout-path = "serial0:115200n8";
 	};
+
+	pl_clk_keeper {
+		compatible = "gpio-gate-clock";
+		clocks = <&zynqmp_clk 71>, <&zynqmp_clk 72>;
+		#clock-cells = <0>;
+	};
+	fclk0:fclk0 {
+
+   status = "okay";
+
+   compatible = "xlnx,fclk";
+
+   clocks = <0x04 0x47>;
+
+   phandle = <0xa5>;
+
+  };
+
+ 
+
+  fclk1 {
+
+   status = "okay";
+
+   compatible = "xlnx,fclk";
+
+   clocks = <0x04 0x48>;
+
+   phandle = <0xa6>;
+
+  };
+
+ 
+
+  fclk2 {
+
+   status = "okay";
+
+   compatible = "xlnx,fclk";
+
+   clocks = <0x04 0x49>;
+
+   phandle = <0xa7>;
+
+  };
+
+ 
+
+  fclk3 {
+
+   status = "okay";
+
+   compatible = "xlnx,fclk";
+
+   clocks = <0x04 0x4a>;
+
+   phandle = <0xa8>;
+
+  };
 };
 
 &sdhci1 {
@@ -14,4 +74,8 @@
 
 &gem0 {
 	local-mac-address = [02 11 22 33 44 55];
+};
+
+&zynqmp_clk {
+	status = "okay";
 };

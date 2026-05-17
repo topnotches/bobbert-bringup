@@ -1,5 +1,5 @@
 PETALINUX_VER=2025.2
-HARDWARE_PATH=/home/topnotches/puzhi_bringup/hw/hw_bare.xsa
-HDF_EXT=xsa
 VALIDATE_HW_CHKSUM=1
+HARDWARE_PATH=/home/topnotches/puzhi_bringup/hw/base.xsa
+HDF_EXT=xsa
 YOCTO_SDK=8576b661a268f6a1638f445924bb6001e14cdc81b43e38c84762381e5ff54d50
