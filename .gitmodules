@@ -1,0 +1,6 @@
+[submodule "hw/noc_lib"]
+	path = hw/noc_lib
+	url = https://github.com/topnotches/02204_async_noc.git
+[submodule "hw/analdevices"]
+	path = hw/analdevices
+	url = https://github.com/analogdevicesinc/hdl.git
